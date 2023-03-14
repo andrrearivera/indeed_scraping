@@ -120,7 +120,7 @@ So, we tell Selenium to click the "next page" button at the bottom of each page,
 ```python
 for i in range(20):
     driver.find_element(By.XPATH, "//a[contains(@aria-label, 'Next Page')]").click()
-    time.sleep(5)
+    time.sleep(5) #have code wait before continuing to not overload the site
 
     page = driver.page_source
     soup = BeautifulSoup(page,'html.parser')
@@ -136,4 +136,39 @@ for i in range(20):
         find_location()
         find_job_link()
         time.sleep(.25)
+```
+
+### Write data into .csv file
+There is no use in scraping the data if we don't display it somewhere, so I wrote the data gathered within the lists into a table in the CSV file.
+
+In the following code, I created a new .csv file, named it 'indeed', and created a table within it with the headings job, company, location, and link.
+Afterwards, I created another loop to write each entry into the table.
+```python
+print(len(link_list))  
+
+index = 0
+with open('indeed.csv', mode='w', newline='') as file:
+    writer = csv.writer(file)
+    writer.writerow(['job', 'company', 'location', 'link'])
+
+
+
+    for job_entry in job_list:
+        print(index) #just to keep track of which entry the code is on in case of a fail
+        print(job_list[index]) #to ensure everything is printing
+        print(company_list[index])#to ensure everything is printing
+        print(location_list[index])#to ensure everything is printing
+        print(link_list[index])#to ensure everything is printing
+
+        if len(job_list[index]) >= 1:
+            print(job_list[index])
+            writer.writerow([job_list[index],company_list[index],location_list[index],link_list[index]])
+
+        index = index + 1
+```
+
+### driver.quit()
+Everytime you use Selenium and open a link like we did above, the browser creates a second "copy" of that site. Its important to close it at the end of your code, or whenever you are done with Seleneium. 
+```python
+driver.quit()
 ```
