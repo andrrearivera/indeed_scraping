@@ -65,3 +65,75 @@ def find_job_title():
     job_title = job_a.find('span').text #gets ONLY the text from the <span> within and saves it to a variable
     job_list.append(job_title) #adds the job name to the empty list
 ```
+
+### def find_company_name():
+This function gathers the name of the companies hiring. The company names are included within the table element of each listing, so:
+
+```python
+def find_company_name():
+    company_name = table.find('span', class_='companyName').text #gets only the text of the company name and saves it into a variable
+    company_list.append(company_name) #adds the names into the empty list
+```
+
+### def find_location():
+This function collects the location of each job. This information was collected from a <div> tag within the table of each listing.
+
+```python
+def find_location():
+    company_location = table.find('div', class_='companyLocation').text #gets ONLY text from the div element
+    location_list.append(company_location) # location adds to empty list
+```
+
+### def find_job_link():
+This data wouldn't be as helpful if we didn't include the link for individuals to apply or learn new information.
+The urls for each individual job listing page is a bit tricky, but follows a similar structure
+
+"https://www.indeed.com/viewjob?jk=" + job_jk + "&tk=1gr98572ejiie801&from=serp&vjs=3"
+
+The first and last parts of the link are the same; however the middle part is unique, similar to the id of each job listing. Within each <a> tag there is an attribute named **data-jk** which contains the specific set of numbers/letters for each listing (not the same as their ids)
+
+```python
+def find_job_link():
+    job_a = table.find('a') #find the <a> tag that holds the link
+    job_jk = job_a['data-jk'] #collect the unique id for each listing from the <a> tag
+    link_list.append("https://www.indeed.com/viewjob?jk=" + job_jk + "&tk=1gr98572ejiie801&from=serp&vjs=3") #concoctonate the url with the job_jk to create the unique id for each job page.
+```
+
+
+### for table in tables:
+The functions above only collected data for one job listing on the page; however there are 15 job listings per page. So to collect them all we create a loop and call each function within it to gather the data.
+
+```python
+for table in tables:
+    find_job_title()
+    find_company_name()
+    find_location()
+    find_job_link()
+```
+
+
+###click on next pages
+After collecting the data from one page, we can repeat it on x number of pages. In my example I chose 20 as it results in around 300 job listings that I would be scraping.
+
+So, we tell Selenium to click the "next page" button at the bottom of each page, collect the html of said page and turn it into soup to be able to call the same functions as above.
+
+```python
+for i in range(20):
+    driver.find_element(By.XPATH, "//a[contains(@aria-label, 'Next Page')]").click()
+    time.sleep(5)
+
+    page = driver.page_source
+    soup = BeautifulSoup(page,'html.parser')
+    tables = soup.find_all("td", class_="resultContent")
+
+
+#run the function again
+
+#for i in range(20):
+    for table in tables:
+        find_job_title()
+        find_company_name()
+        find_location()
+        find_job_link()
+        time.sleep(.25)
+```
